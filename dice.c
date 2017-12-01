@@ -5,21 +5,12 @@
 #include <ctype.h>
 #include <inttypes.h>
 
-#ifdef __linux__
-typedef uintmax_t reason_t;
-#define reason_format PRIuMAX
-#define   init_random()   init_random_linux()
-#define random_number() random_number_linux()
-#define remove_random() remove_random_linux()
-#define strtoreason strtoumax
-#else
-typedef int reason_t;
-#include <limits.h>
-#define reason_format "d"
-#define   init_random()   init_random_pseudo()
-#define random_number() random_number_pseudo()
-#define remove_random() while(0){}
-#define strtoreason strtoreason_atoi
+#ifdef DEV_RANDOM
+#include "rand_gen/dev_random.h"
+#endif
+
+#ifdef LIBC_PSEUDO
+#include "rand_gen/libc_pseudo.h"
 #endif
 
 #define debug_puts(s) printf("line %d: " s "\n", __LINE__)
@@ -46,49 +37,8 @@ struct s_dice {
 	reason_t num;
 };
 
-FILE *rand_f; /* fp for whatever random device is in use */
 char *program_name;
 struct s_dice *dice_list = NULL;
-
-reason_t strtoreason_atoi(char *const tmp, char ** e_tmp, int unused)
-{
-	*e_tmp = tmp+strlen(tmp);
-	int t = atoi(tmp);
-	return t < 0 ? INT_MAX : t;
-}
-
-void init_random_linux(void)
-
-{
-	rand_f = fopen("/dev/random","r");
-	if(!rand_f){
-		perror("Cannot open /dev/random");
-		exit(1);
-	}
-}
-
-void remove_random_linux(void)
-{
-	if(fclose(rand_f))
-		perror("Cannot close /dev/random");
-}
-
-reason_t random_number_linux(void)
-{
-	reason_t out;
-	fread(&out, sizeof out, 1, rand_f);
-	return out;
-}
-
-void init_random_pseudo(void)
-{
-	srand(40);
-}
-
-int random_number_pseudo(void)
-{
-	return rand();
-}
 
 char *err_str(enum error_type e)
 {
@@ -182,7 +132,7 @@ int make_one_dice(size_t dice_off, const char *const s)
 		goto e_dice;
 	}
 
-	dice_list[dice_off].faces = strtoreason(tmp, &e_tmp, 10);
+	dice_list[dice_off].faces = strtoreason(tmp, &e_tmp);
 	dice_list[dice_off].num = 1;
 
 	if(e_tmp == tmp){
@@ -255,7 +205,7 @@ int make_dice(size_t dice_off, const char *const s)
 		goto e_dice;
 	}
 
-	d->num = strtoreason(tmp, &e_tmp, 10);
+	d->num = strtoreason(tmp, &e_tmp);
 
 	/* XdX or dX *
 	 * ^       ^ */
@@ -281,7 +231,7 @@ int make_dice(size_t dice_off, const char *const s)
 		goto e_dice;
 	}
 
-	d->faces = strtoreason(tmp, &e_tmp, 10);
+	d->faces = strtoreason(tmp, &e_tmp);
 
 	if(e_tmp == tmp){
 		debug_puts("fail");
