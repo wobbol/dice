@@ -281,11 +281,24 @@ int main(int argc, char* argv[])
 	int error = 0;
 	int num_dice = argc - 1;
 
+	int throw = 0;
 	for(int i = 0; i < num_dice; ++i){
-		if(make_dice(i, argv[i + 1]))
-			roll_the_dice(i);
-		else
-			error = 1;
+		if(!strcmp(argv[i + 1],"throw")){
+			throw = 1;
+		}else{
+			if(make_dice(i, argv[i + 1])){
+				if(throw){
+					printf("*DM gets ");
+				}
+				roll_the_dice(i);
+				if(throw){
+					printf("to the face*");
+					throw = 0;
+				}
+			}else{
+				error = 1;
+			}
+		}
 	}
 
 	remove_random();
