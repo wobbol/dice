@@ -1,12 +1,11 @@
 CC=clang
 
-PSEUDO=rand_gen/libc_pseudo.c -DLIBC_PSEUDO
-DEV_R=rand_gen/dev_random.c -DDEV_RANDOM
-NAME=dice
+NAME=test
 
-all: libc dev_random
+all: iso_c dev_random
 
-libc:
-	$(CC) dice.c $(PSEUDO) -o $(NAME)_p
-dev_random:
-	$(CC) dice.c $(DEV_R) -o $(NAME)_d
+iso_c: example.c libdice/libdice_iso.a
+	$(CC) example.c libdice/libdice_iso.a -o $(NAME)_p -g
+
+dev_random: example.c libdice/libdice_posix.a
+	$(CC) example.c libdice/libdice_posix.a -o $(NAME)_d -g
