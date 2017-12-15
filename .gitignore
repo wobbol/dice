@@ -1,2 +1,4 @@
-dice_p
-dice_d
+example_urandom
+example_isoc
+libdice/*.o
+libdice/*.a
