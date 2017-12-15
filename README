@@ -1,0 +1,15 @@
+libdice - need to roll 100d61? no problem.
+
+Take a look at example.c to see it in action.
+
+Here's a short rundown:
+
+init_dice() - Starts number generator and other setup.
+finish_dice() - Cleanup any *FILEs and malloc.
+
+dice_parse() - Digest dice-roll string.
+  On failure, dice_error is set.
+  Return value, 1 on success and 0 on failure.
+
+dice_perror() - Prints given string, then the dice error.
+dice_strerror() - Given dice_error, return error string.
