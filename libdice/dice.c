@@ -14,7 +14,6 @@ enum dice_error_e dice_error;
 struct dice_t {
 	uintmax_t faces;
 	uintmax_t num;
-	uintmax_t scale;
 	uintmax_t mask;
 };
 void init_dice(void){
@@ -108,8 +107,11 @@ int dice_parse_one(struct dice_t *dice, const char *const s)
 		dice_error = E_MISSING_FACES;
 		goto e_dice;
 	}
-	if(tmp)
-		dice->scale = strtoumax(tmp, &e_tmp, 10);
+	if(tmp){
+		//TODO: What are the consiquences of removeing this?
+		//dice->scale = strtoumax(tmp, &e_tmp, 10);
+		strtoumax(tmp, &e_tmp, 10);
+	}
 
 	if(s+strlen(s) != e_tmp || (e_tmp[0] == 'd')){
 		debug_puts("fail");
@@ -150,7 +152,6 @@ int dice_parse(struct dice_t **const dice, const char *const s)
 	}
 
 	struct dice_t *d = *dice;
-	d->scale = 1;
 
 	if(!isdigit(s[0])){
 		debug_puts("fail");
