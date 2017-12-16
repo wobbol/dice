@@ -2,6 +2,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <math.h>
 #include "dice.h"
 #include "rand.h"
 
@@ -14,6 +15,7 @@ struct dice_t {
 	uintmax_t faces;
 	uintmax_t num;
 	uintmax_t scale;
+	uintmax_t mask;
 };
 void init_dice(void){
 	init_random();
@@ -238,22 +240,36 @@ char *dice_str(struct dice_t *dice)
 	dice->faces);
 	return str;
 }
+void init_mask(struct dice_t *dice)
+{
+	uintmax_t *f = &dice->faces;
+	uintmax_t *m = &dice->mask;
+	uintmax_t msb = 1 + log2(*f);
+
+	*m = 0;
+	for(int i = 0; i < msb; ++i) {
+		*m |= 1<<i;
+	}
+}
 
 char *dice_rtd(struct dice_t *dice)
 {
 	static char str[MAX_ARG_SZ];
 	int read;
+	init_mask(dice);//TODO: Move this to the parse stuff.
 
 	int off = 0;
 	int bytes_left = MAX_ARG_SZ;
+		uintmax_t r;
 	while (dice->num--){
-		uintmax_t r = random_number();
-		uintmax_t f = dice->faces;
-		uintmax_t s = dice->scale;
-		uintmax_t num = (r % f)*s;//TODO: remove the modulo bias
-		if(num == 0)
-			num = f;
-		read = snprintf(&str[off], bytes_left, "%" PRIuMAX " ", num);
+retry:
+		r = random_number();
+		r &= dice->mask;
+		if(r > dice->faces)
+			goto retry;
+		if(r == 0)
+			r = dice->faces;
+		read = snprintf(&str[off], bytes_left, "%" PRIuMAX " ", r);
 
 		bytes_left -= read;
 		off += read;

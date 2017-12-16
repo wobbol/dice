@@ -8,7 +8,7 @@ SRC=example.c
 SRC_ISOC=$(SRC) libdice/libdice_isoc.a
 SRC_URANDOM=$(SRC) libdice/libdice_posix.a
 
-OPTS=-g -Wall
+OPTS=-lm -g -Wall
 
 all: $(EXEC_URANDOM) $(EXEC_ISOC)
 
