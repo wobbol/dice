@@ -1,0 +1,3 @@
+- fix the memory management of struct dice_t
+  remove the "Experimental memory management" commit
+  expose struct dice_t and ask the user to pass their memory to parse_dice
