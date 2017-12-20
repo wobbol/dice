@@ -5,8 +5,8 @@ EXEC_URANDOM=test_urandom
 
 SRC=example.c
 
-SRC_ISOC=$(SRC) libdice/libdice_isoc.a
-SRC_URANDOM=$(SRC) libdice/libdice_posix.a
+SRC_ISOC=$(SRC) diceroll/libdiceroll_isoc.a
+SRC_URANDOM=$(SRC) diceroll/libdiceroll_posix.a
 
 OPTS=-lm -g -Wall
 

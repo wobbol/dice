@@ -1,0 +1,5 @@
+to add another source of randomness, define/implement the below.
+
+void init_random(void) -------- Setup random number generator.
+void remove_random(void) ------ De-init random number generator.
+uintmax_t random_number(void) - Next random number.

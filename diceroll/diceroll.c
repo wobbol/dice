@@ -3,19 +3,19 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <math.h>
-#include "dice.h"
+#include "diceroll.h"
 #include "rand.h"
 
 #define debug_puts(s) printf("line %d: " s "\n", __LINE__)
 #define MAX_ARG_SZ 256
 
-enum dice_error_e dice_error;
+enum diceroll_error_e diceroll_error;
 
-void init_dice(void)
+void diceroll_init(void)
 {
 	init_random();
 }
-void finish_dice(void)
+void diceroll_finish(void)
 {
 	remove_random();
 }
@@ -31,7 +31,7 @@ static char *error_str[] = {
 	[E_MISSING_SEP]   = "\"d\" not found",
 };
 
-char *dice_strerror(enum dice_error_e e)
+char *diceroll_strerror(enum diceroll_error_e e)
 {
 	if(e < E_NERR)
 		return error_str[e];
@@ -41,24 +41,24 @@ char *dice_strerror(enum dice_error_e e)
 	return tmp;
 }
 
-void dice_perror(const char *const str)
+void diceroll_perror(const char *const str)
 {
-	fprintf(stderr, "%s: %s.\n", str, dice_strerror(dice_error));
+	fprintf(stderr, "%s: %s.\n", str, diceroll_strerror(diceroll_error));
 }
 
-static int valid_dice(struct dice_t *d)
+static int valid_dice(struct diceroll_t *d)
 {
 	/* check ranges */
 	if(d->faces < 2) {
 		debug_puts("fail");
-		dice_error = E_RANGE_FACES;
+		diceroll_error = E_RANGE_FACES;
 		return 0;
 	}
 
 	return 1;
 }
 
-static void init_mask(struct dice_t *d)
+static void init_mask(struct diceroll_t *d)
 {
 	uintmax_t msb = 1 + log2(d->faces);
 
@@ -75,9 +75,9 @@ static void init_mask(struct dice_t *d)
  *
  * return value:
  *  1 - success, use dice
- *  0 - failure, check dice_error
+ *  0 - failure, check diceroll_error
  */
-int dice_parse(struct dice_t *const d, const char *s)
+int diceroll_parse(struct diceroll_t *const d, const char *s)
 {
 	if(!s)
 		return 0;
@@ -93,7 +93,7 @@ int dice_parse(struct dice_t *const d, const char *s)
 
 	if(!isdigit(s[0])) {
 		debug_puts("fail");
-		dice_error = E_MISSING;
+		diceroll_error = E_MISSING;
 		return 0;
 	}
 
@@ -103,12 +103,12 @@ int dice_parse(struct dice_t *const d, const char *s)
 
 	if(end == s) {
 		debug_puts("fail");
-		dice_error = E_MISSING_NUM;
+		diceroll_error = E_MISSING_NUM;
 		return 0;
 	}
 	if(*end != 'd') {
 		debug_puts("fail");
-		dice_error = E_MISSING_SEP;
+		diceroll_error = E_MISSING_SEP;
 		return 0;
 	}
 	s = ++end;
@@ -118,11 +118,11 @@ parse_one:
 
 	if(end == s) {
 		debug_puts("fail");
-		dice_error = E_MISSING_FACES;
+		diceroll_error = E_MISSING_FACES;
 		return 0;
 	}
 
-	if(!valid_dice(d)) { /* sets dice_error */
+	if(!valid_dice(d)) { /* sets diceroll_error */
 		return 0;
 	}
 	init_mask(d);
@@ -130,7 +130,7 @@ parse_one:
 	return 1;
 }
 
-char *dice_str(struct dice_t *d)
+char *diceroll_str(struct diceroll_t *d)
 {
 	static char str[MAX_ARG_SZ];
 	snprintf(
@@ -142,7 +142,7 @@ char *dice_str(struct dice_t *d)
 	return str;
 }
 
-uintmax_t dice_rtd(struct dice_t *const d)
+uintmax_t diceroll_rtd(struct diceroll_t *const d)
 {
 	if(!d->num)
 		return 0;

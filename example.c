@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <inttypes.h>
 
-#include "libdice/dice.h"
+#include "diceroll/diceroll.h"
 
 char *program_name;
 
@@ -22,26 +22,26 @@ int main(int argc, char* argv[])
 	if (argc < 2)
 		usage(1);
 
-	init_dice();
+	diceroll_init();
 
 	int error = 0;
-	struct dice_t d;
+	struct diceroll_t d;
 
 	uintmax_t roll;
 	//TODO: reimplement dicethrow
 	while(*(++argv)) {
-		if(dice_parse(&d, *argv)){
-			printf("%-7s| ", dice_str(&d));
-			while((roll = dice_rtd(&d)) != 0)
+		if(diceroll_parse(&d, *argv)){
+			printf("%-7s| ", diceroll_str(&d));
+			while((roll = diceroll_rtd(&d)) != 0)
 				printf("%" PRIuMAX " ", roll);
 			printf("\n");
 		}else{
-			dice_perror(*argv);
+			diceroll_perror(*argv);
 			error = 1;
 		}
 	}
 
-	finish_dice();
+	diceroll_finish();
 	if(error)
 		usage(1);
 	return 0;

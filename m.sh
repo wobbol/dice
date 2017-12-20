@@ -1,6 +1,6 @@
 #!/bin/sh
 function usage(){
-	echo Build libdice and example.
+	echo Build libdiceroll and example.
 	echo usage: $0 "[clean]"
 	exit 0
 }
@@ -20,7 +20,7 @@ case $1 in
 		;;
 esac
 
-cd libdice
+cd diceroll
 make $@
 cd ..
 make $@
