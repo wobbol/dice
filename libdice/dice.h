@@ -3,8 +3,8 @@
 
 struct dice_t {
 	uintmax_t faces;
-	uintmax_t num;
-	uintmax_t mask;
+	uintmax_t num;  /* times to roll dice */
+	uintmax_t mask; /* assert((faces & mask) == faces) */
 };
 
 enum dice_error_e{
@@ -16,6 +16,7 @@ enum dice_error_e{
 	E_RANGE_ARGC,
 	E_RANGE_FACES,
 
+	E_NOT_FOUND,
 	E_MISSING,
 	E_MISSING_NUM,
 	E_MISSING_SEP,

@@ -29,6 +29,8 @@ char *error_str[] = {
 	[E_MISSING_FACES] = "<faces> missing",
 	[E_MISSING_SEP]   = "\"d\" not found",
 
+	[E_NOT_FOUND] = "Dice string not found",
+
 	[E_ARG_GARBAGE_BEGIN] = "<num> missing",
 	[E_MISSING_NUM]       = "<num> missing",
 };
@@ -48,74 +50,16 @@ void dice_perror(const char *const arg)
 	fprintf(stderr, "%s: %s.\n", arg, dice_strerror(dice_error));
 }
 
-int dice_valid(struct dice_t *dice)
+int valid_dice(struct dice_t *dice)
 {
 	/* check ranges */
 	if(dice->faces < 2){
 		debug_puts("fail");
 		dice_error = E_RANGE_FACES;
-		return 1;
+		return 0;
 	}
-
-	return 0;
-}
-
-int dice_parse_one(struct dice_t *dice, const char *const s)
-{
-	char *e_tmp, *tmp;
-	char dice_string[MAX_ARG_SZ];
-
-	strncpy(dice_string, s, MAX_ARG_SZ);
-	tmp = &dice_string[1];
-
-	if(!tmp){
-		debug_puts("fail");
-		dice_error = E_MISSING;
-		goto e_dice;
-	}
-	if(tmp[0] == '-'){
-
-		if(strlen(tmp) < 2){
-			debug_puts("fail");
-			dice_error = E_MISSING_FACES;
-		}else if(!isdigit(tmp[1])){
-			debug_puts("fail");
-			dice_error = E_MISSING_FACES;
-		}else{
-			debug_puts("fail");
-			dice_error = E_RANGE_FACES;
-		}
-
-		goto e_dice;
-	}
-
-	dice->faces = strtoumax(tmp, &e_tmp, 10);
-	dice->num = 1;
-
-	if(e_tmp == tmp){
-		debug_puts("fail");
-		dice_error = E_MISSING_FACES;
-		goto e_dice;
-	}
-	if(tmp){
-		//TODO: What are the consiquences of removeing this?
-		//dice->scale = strtoumax(tmp, &e_tmp, 10);
-		strtoumax(tmp, &e_tmp, 10);
-	}
-
-	if(s+strlen(s) != e_tmp || (e_tmp[0] == 'd')){
-		debug_puts("fail");
-		dice_error = E_ARG_GARBAGE_END;
-		goto e_dice;
-	}
-	if(dice_valid(dice))
-		goto e_dice;
-
 
 	return 1;
-
-e_dice:
-	return 0;
 }
 
 /*
@@ -124,97 +68,62 @@ e_dice:
  *  B is the face count of the dice.
  *
  * return value:
- *  1 when, dice at dice_off is initalized.
- *  0 when, dice at dice_off is not initalized.
+ *  1 - success, use dice
+ *  0 - failure, check dice_error
  */
-int dice_parse(struct dice_t *const dice, const char *const s)
+int dice_parse(struct dice_t *const dice, const char *s)
 {
-	/* dX *
-	 * ^  */
 	if(!s)
 		return 0;
-	if(s[0] == 'd') {
-
-		return dice_parse_one(dice, s);
-	}
 
 	struct dice_t *d = dice;
 
+	while(isspace(*s))
+		++s;
+
+	if(s[0] == 'd') {
+		d->num = 1;
+		++s;
+		goto parse_one;
+	}
+
 	if(!isdigit(s[0])){
 		debug_puts("fail");
-		dice_error = E_ARG_GARBAGE_BEGIN;
-		goto e_dice;
+		dice_error = E_NOT_FOUND;
+		return 0;
 	}
 
-	char dice_string[MAX_ARG_SZ];
-	strncpy(dice_string, s, MAX_ARG_SZ);
+	char *e_tmp;
 
-	char *e_tmp, *tmp;
+	d->num = strtoumax(s, &e_tmp, 10);
 
-	/* XdX or dX *
-	 * ^       ^ */
-	tmp = strtok(dice_string, "d");
-
-	if(!tmp){
-		debug_puts("fail");
-		dice_error = E_MISSING;
-		goto e_dice;
-	}
-	if(!strcmp(tmp, s)){
-		debug_puts("fail");
-		dice_error = E_MISSING_SEP;
-		goto e_dice;
-	}
-	if(tmp[0] == '-'){
-		debug_puts("fail");
-		dice_error = E_RANGE_NUM;
-		goto e_dice;
-	}
-
-	d->num = strtoumax(tmp, &e_tmp, 10);
-
-	/* XdX or dX *
-	 * ^       ^ */
-	if(e_tmp == tmp){
+	if(e_tmp == s){
 		debug_puts("fail");
 		dice_error = E_MISSING_NUM;
+		return 0;
 	}
+	if(*e_tmp != 'd') {
+		debug_puts("fail");
+		dice_error = E_MISSING_SEP;
+		return 0;
+	}
+	s = ++e_tmp;
+parse_one:
 
-	/* XdX *
-	 *   ^ */
-	tmp = strtok(NULL, "\0");
+	d->faces = strtoumax(s, &e_tmp, 10);
 
-	if(!tmp){
+	if(e_tmp == s){
 		debug_puts("fail");
 		dice_error = E_MISSING_FACES;
-		goto e_dice;
-	}
-	if(tmp[0] == '-'){
-		debug_puts("fail");
-		dice_error = E_RANGE_FACES;
-		goto e_dice;
+		return 0;
 	}
 
-	d->faces = strtoumax(tmp, &e_tmp, 10);
-
-	if(e_tmp == tmp){
+	if(!valid_dice(d)) {/* sets dice_error */
 		debug_puts("fail");
-		dice_error = E_MISSING_FACES;
-		goto e_dice;
+		return 0;
 	}
-	if(tmp+strlen(tmp) != e_tmp){
-		debug_puts("fail");
-		dice_error = E_ARG_GARBAGE_END;
-		goto e_dice;
-	}
-	if(dice_valid(d))
-		goto e_dice;
 
 	return 1;
-e_dice:
-
-	*dice = (struct dice_t){0};
-	return 0;
 }
 
 char *dice_str(struct dice_t *dice)
