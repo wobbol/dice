@@ -45,21 +45,31 @@ char *dice_strerror(enum dice_error_e e)
 	return tmp;
 }
 
-void dice_perror(const char *const arg)
+void dice_perror(const char *const str)
 {
-	fprintf(stderr, "%s: %s.\n", arg, dice_strerror(dice_error));
+	fprintf(stderr, "%s: %s.\n", str, dice_strerror(dice_error));
 }
 
-int valid_dice(struct dice_t *dice)
+int valid_dice(struct dice_t *d)
 {
 	/* check ranges */
-	if(dice->faces < 2){
+	if(d->faces < 2){
 		debug_puts("fail");
 		dice_error = E_RANGE_FACES;
 		return 0;
 	}
 
 	return 1;
+}
+
+void init_mask(struct dice_t *d)
+{
+	uintmax_t msb = 1 + log2(d->faces);
+
+	d->mask = 0;
+	for(int i = 0; i < msb; ++i) {
+		*d->mask |= 1<<i;
+	}
 }
 
 /*
@@ -71,12 +81,10 @@ int valid_dice(struct dice_t *dice)
  *  1 - success, use dice
  *  0 - failure, check dice_error
  */
-int dice_parse(struct dice_t *const dice, const char *s)
+int dice_parse(struct dice_t *const d, const char *s)
 {
 	if(!s)
 		return 0;
-
-	struct dice_t *d = dice;
 
 	while(isspace(*s))
 		++s;
@@ -93,33 +101,32 @@ int dice_parse(struct dice_t *const dice, const char *s)
 		return 0;
 	}
 
-	char *e_tmp;
+	char *end;
 
-	d->num = strtoumax(s, &e_tmp, 10);
+	d->num = strtoumax(s, &end, 10);
 
-	if(e_tmp == s){
+	if(end == s){
 		debug_puts("fail");
 		dice_error = E_MISSING_NUM;
 		return 0;
 	}
-	if(*e_tmp != 'd') {
+	if(*end != 'd') {
 		debug_puts("fail");
 		dice_error = E_MISSING_SEP;
 		return 0;
 	}
-	s = ++e_tmp;
+	s = ++end;
 parse_one:
 
-	d->faces = strtoumax(s, &e_tmp, 10);
+	d->faces = strtoumax(s, &end, 10);
 
-	if(e_tmp == s){
+	if(end == s){
 		debug_puts("fail");
 		dice_error = E_MISSING_FACES;
 		return 0;
 	}
 
 	if(!valid_dice(d)) {/* sets dice_error */
-		debug_puts("fail");
 		return 0;
 	}
 	init_mask(d);
@@ -127,27 +134,16 @@ parse_one:
 	return 1;
 }
 
-char *dice_str(struct dice_t *dice)
+char *dice_str(struct dice_t *d)
 {
 	static char str[MAX_ARG_SZ];
 	snprintf(
 	str,
 	MAX_ARG_SZ,
 	"%" PRIuMAX "d%" PRIuMAX,
-	dice->num,
-	dice->faces);
+	d->num,
+	d->faces);
 	return str;
-}
-void init_mask(struct dice_t *dice)
-{
-	uintmax_t *f = &dice->faces;
-	uintmax_t *m = &dice->mask;
-	uintmax_t msb = 1 + log2(*f);
-
-	*m = 0;
-	for(int i = 0; i < msb; ++i) {
-		*m |= 1<<i;
-	}
 }
 
 uintmax_t dice_rtd(struct dice_t *const d)

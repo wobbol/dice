@@ -28,9 +28,9 @@ enum dice_error_e{
 extern enum dice_error_e dice_error;
 
 char *dice_strerror(enum dice_error_e e);
-void dice_perror(const char *const arg);
-int dice_parse(struct dice_t *const dice, const char *const s);
-char *dice_str(struct dice_t *dice);
+void dice_perror(const char *const str);
+int dice_parse(struct dice_t *const d, const char *const str);
+char *dice_str(struct dice_t *d);
 uintmax_t dice_rtd(struct dice_t *d);
 void init_dice(void);
 void finish_dice(void);
