@@ -5,9 +5,6 @@ struct dice_t;
 
 enum dice_error_e{
 	E_OK = 0,
-
-	E_TOO_MANY_DICE_P,
-
 	E_ARG_GARBAGE_END,
 	E_ARG_GARBAGE_BEGIN,
 

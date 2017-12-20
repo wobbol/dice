@@ -8,34 +8,17 @@
 
 #define debug_puts(s) printf("line %d: " s "\n", __LINE__)
 #define MAX_ARG_SZ 256
-#define MAX_NUM_DICE 5
 
 enum dice_error_e dice_error;
 
 struct dice_t {
-	const size_t off;
-
 	uintmax_t faces;
 	uintmax_t num;
 	uintmax_t mask;
 };
-
-struct dice_t_refs_t {
-	int taken[MAX_NUM_DICE];
-	struct dice_t ref[MAX_NUM_DICE];
-} dice_t_refs;
-
 void init_dice(void){
-	struct dice_t *d = dice_t_refs.ref;
-
-	for(int i = 0; i < MAX_NUM_DICE; ++i) {
-		struct dice_t t = { .off = i };
-		memcpy( d++, &t, sizeof *d);
-	}
-
 	init_random();
 }
-
 void finish_dice(void){
 	remove_random();
 }
@@ -141,36 +124,6 @@ e_dice:
 	return 0;
 }
 
-struct dice_t *next_dice(void)
-{
-	int *t = dice_t_refs.taken;
-	struct dice_t *d = dice_t_refs.ref;
-
-	int i = 0;
-	while(1) {
-		if(i >= MAX_NUM_DICE) {
-			dice_error = E_TOO_MANY_DICE_P;
-			return (struct dice_t *)NULL;
-		}
-
-		if(*t){
-			++i;
-			++t;
-			++d;
-			continue;
-		}
-		*t = 1;
-		break;
-	}
-	printf("offset:%zu i:%d ptr:%p\n", d->off, i, d);
-	return d;
-}
-
-void free_dice(struct dice_t *d)
-{
-	dice_t_refs.taken[d->off] = 0;
-}
-
 /*
  * format of s:
  * AdB or dB, where A is the number of dice to roll and
@@ -181,14 +134,16 @@ void free_dice(struct dice_t *d)
  *  0 when, dice at dice_off is not initalized.
  */
 int dice_parse(struct dice_t **const dice, const char *const s)
-{
-	*dice = next_dice();
 
-	if(!(s && *dice))
+{
+	static struct dice_t ret;
+	*dice = &ret;
+	/* dX *
+	 * ^  */
+	if(!s)
 		return 0;
 	if(s[0] == 'd') {
-		/* dX *
-		 * ^  */
+
 		return dice_parse_one(*dice, s);
 	}
 
@@ -320,7 +275,5 @@ retry:
 			break;
 		}
 	}
-	//return *dice to the pool
-	//dice_t_refs.taken[dice->off] = 0;
 	return str;
 }
