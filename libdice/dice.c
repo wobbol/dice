@@ -39,43 +39,36 @@ void init_dice(void){
 void finish_dice(void){
 	remove_random();
 }
+char *error_str[] = {
+	[E_OK] = "Success",
+	[E_TOO_MANY_DICE_P] = "Too many dice_t*",
+	[E_ARG_GARBAGE_END] = "Argument has extra chars",
+
+	[E_RANGE_ARGC]  = "Number of arguments out of range",
+	[E_RANGE_NUM]   = "<num> must be positive",
+	[E_RANGE_FACES] = "<faces> must be greater than 1",
+
+	[E_MISSING]       = "Missing string",
+	[E_MISSING_FACES] = "<faces> missing",
+	[E_MISSING_SEP]   = "\"d\" not found",
+
+	[E_ARG_GARBAGE_BEGIN] = "<num> missing",
+	[E_MISSING_NUM]       = "<num> missing",
+};
 
 char *dice_strerror(enum dice_error_e e)
 {
-	switch(e){
-	case E_OK:
-		return "Success";
-	case E_TOO_MANY_DICE_P:
-		return "too many dice_t*";
+	if(e < E_NERR)
+		return error_str[e];
 
-	case E_ARG_GARBAGE_END:
-		return "argument has extra chars";
-
-	case E_RANGE_ARGC:
-		return "number of arguments out of range";
-	case E_RANGE_NUM:
-		return "<num> must be positive";
-	case E_RANGE_FACES:
-		return "<faces> must be greater than 1";
-
-	case E_MISSING:
-		return "missing string";
-	case E_ARG_GARBAGE_BEGIN:
-	case E_MISSING_NUM:
-		return "<num> missing";
-	case E_MISSING_FACES:
-		return "<faces> missing";
-	case E_MISSING_SEP:
-		return "\"d\" not found";
-
-	default:
-		return "Write an error string!";
-	}
+	char tmp[50];
+	snprintf(&tmp, 50, "%lu", e);
+	return tmp;
 }
 
 void dice_perror(const char *const arg)
 {
-	fprintf(stderr,"%s: %s\n", dice_strerror(dice_error), arg);
+	fprintf(stderr, "%s: %s.\n", arg, dice_strerror(dice_error));
 }
 
 int dice_valid(struct dice_t *dice)

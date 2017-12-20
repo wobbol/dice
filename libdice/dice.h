@@ -19,6 +19,8 @@ enum dice_error_e{
 	E_MISSING_NUM,
 	E_MISSING_SEP,
 	E_MISSING_FACES,
+
+	E_NERR,
 };
 
 extern enum dice_error_e dice_error;
