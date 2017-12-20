@@ -11,13 +11,16 @@
 
 enum dice_error_e dice_error;
 
-void init_dice(void){
+void init_dice(void)
+{
 	init_random();
 }
-void finish_dice(void){
+void finish_dice(void)
+{
 	remove_random();
 }
-char *error_str[] = {
+
+static char *error_str[] = {
 	[E_OK] = "Success",
 
 	[E_RANGE_FACES] = "<faces> must be greater than 1",
@@ -43,10 +46,10 @@ void dice_perror(const char *const str)
 	fprintf(stderr, "%s: %s.\n", str, dice_strerror(dice_error));
 }
 
-int valid_dice(struct dice_t *d)
+static int valid_dice(struct dice_t *d)
 {
 	/* check ranges */
-	if(d->faces < 2){
+	if(d->faces < 2) {
 		debug_puts("fail");
 		dice_error = E_RANGE_FACES;
 		return 0;
@@ -55,13 +58,13 @@ int valid_dice(struct dice_t *d)
 	return 1;
 }
 
-void init_mask(struct dice_t *d)
+static void init_mask(struct dice_t *d)
 {
 	uintmax_t msb = 1 + log2(d->faces);
 
 	d->mask = 0;
 	for(int i = 0; i < msb; ++i) {
-		d->mask |= 1<<i;
+		d->mask |= 1 << i;
 	}
 }
 
@@ -88,7 +91,7 @@ int dice_parse(struct dice_t *const d, const char *s)
 		goto parse_one;
 	}
 
-	if(!isdigit(s[0])){
+	if(!isdigit(s[0])) {
 		debug_puts("fail");
 		dice_error = E_MISSING;
 		return 0;
@@ -98,7 +101,7 @@ int dice_parse(struct dice_t *const d, const char *s)
 
 	d->num = strtoumax(s, &end, 10);
 
-	if(end == s){
+	if(end == s) {
 		debug_puts("fail");
 		dice_error = E_MISSING_NUM;
 		return 0;
@@ -113,13 +116,13 @@ parse_one:
 
 	d->faces = strtoumax(s, &end, 10);
 
-	if(end == s){
+	if(end == s) {
 		debug_puts("fail");
 		dice_error = E_MISSING_FACES;
 		return 0;
 	}
 
-	if(!valid_dice(d)) {/* sets dice_error */
+	if(!valid_dice(d)) { /* sets dice_error */
 		return 0;
 	}
 	init_mask(d);
