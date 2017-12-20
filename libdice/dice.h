@@ -9,14 +9,9 @@ struct dice_t {
 
 enum dice_error_e{
 	E_OK = 0,
-	E_ARG_GARBAGE_END,
-	E_ARG_GARBAGE_BEGIN,
 
-	E_RANGE_NUM,
-	E_RANGE_ARGC,
 	E_RANGE_FACES,
 
-	E_NOT_FOUND,
 	E_MISSING,
 	E_MISSING_NUM,
 	E_MISSING_SEP,

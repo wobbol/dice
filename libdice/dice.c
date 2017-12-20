@@ -19,20 +19,13 @@ void finish_dice(void){
 }
 char *error_str[] = {
 	[E_OK] = "Success",
-	[E_ARG_GARBAGE_END] = "Argument has extra chars",
 
-	[E_RANGE_ARGC]  = "Number of arguments out of range",
-	[E_RANGE_NUM]   = "<num> must be positive",
 	[E_RANGE_FACES] = "<faces> must be greater than 1",
 
-	[E_MISSING]       = "Missing string",
+	[E_MISSING]       = "Dice string not found",
+	[E_MISSING_NUM]   = "<num> string",
 	[E_MISSING_FACES] = "<faces> missing",
 	[E_MISSING_SEP]   = "\"d\" not found",
-
-	[E_NOT_FOUND] = "Dice string not found",
-
-	[E_ARG_GARBAGE_BEGIN] = "<num> missing",
-	[E_MISSING_NUM]       = "<num> missing",
 };
 
 char *dice_strerror(enum dice_error_e e)
@@ -68,7 +61,7 @@ void init_mask(struct dice_t *d)
 
 	d->mask = 0;
 	for(int i = 0; i < msb; ++i) {
-		*d->mask |= 1<<i;
+		d->mask |= 1<<i;
 	}
 }
 
@@ -97,7 +90,7 @@ int dice_parse(struct dice_t *const d, const char *s)
 
 	if(!isdigit(s[0])){
 		debug_puts("fail");
-		dice_error = E_NOT_FOUND;
+		dice_error = E_MISSING;
 		return 0;
 	}
 
