@@ -1,7 +1,11 @@
 #ifndef h_rand_gen__
 #define h_rand_gen__
 
-struct dice_t;
+struct dice_t {
+	uintmax_t faces;
+	uintmax_t num;
+	uintmax_t mask;
+};
 
 enum dice_error_e{
 	E_OK = 0,
@@ -24,7 +28,7 @@ extern enum dice_error_e dice_error;
 
 char *dice_strerror(enum dice_error_e e);
 void dice_perror(const char *const arg);
-int dice_parse(struct dice_t **const dice, const char *const s);
+int dice_parse(struct dice_t *const dice, const char *const s);
 char *dice_str(struct dice_t *dice);
 char *dice_rtd(struct dice_t *dice);
 void init_dice(void);

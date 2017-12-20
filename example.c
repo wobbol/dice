@@ -25,12 +25,12 @@ int main(int argc, char* argv[])
 	init_dice();
 
 	int error = 0;
-	struct dice_t *d;
+	struct dice_t d;
 
 	//TODO: reimplement dicethrow
 	while(*(++argv)) {
 		if(dice_parse(&d, *argv)){
-			printf("%s| %s\n", dice_str(d), dice_rtd(d));
+			printf("%s| %s\n", dice_str(&d), dice_rtd(&d));
 		}else{
 			dice_perror(*argv);
 			error = 1;

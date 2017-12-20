@@ -11,11 +11,6 @@
 
 enum dice_error_e dice_error;
 
-struct dice_t {
-	uintmax_t faces;
-	uintmax_t num;
-	uintmax_t mask;
-};
 void init_dice(void){
 	init_random();
 }
@@ -24,7 +19,6 @@ void finish_dice(void){
 }
 char *error_str[] = {
 	[E_OK] = "Success",
-	[E_TOO_MANY_DICE_P] = "Too many dice_t*",
 	[E_ARG_GARBAGE_END] = "Argument has extra chars",
 
 	[E_RANGE_ARGC]  = "Number of arguments out of range",
@@ -44,8 +38,8 @@ char *dice_strerror(enum dice_error_e e)
 	if(e < E_NERR)
 		return error_str[e];
 
-	char tmp[50];
-	snprintf(&tmp, 50, "%lu", e);
+	static char tmp[50];
+	snprintf(tmp, 50, "%u", e);
 	return tmp;
 }
 
@@ -133,21 +127,18 @@ e_dice:
  *  1 when, dice at dice_off is initalized.
  *  0 when, dice at dice_off is not initalized.
  */
-int dice_parse(struct dice_t **const dice, const char *const s)
-
+int dice_parse(struct dice_t *const dice, const char *const s)
 {
-	static struct dice_t ret;
-	*dice = &ret;
 	/* dX *
 	 * ^  */
 	if(!s)
 		return 0;
 	if(s[0] == 'd') {
 
-		return dice_parse_one(*dice, s);
+		return dice_parse_one(dice, s);
 	}
 
-	struct dice_t *d = *dice;
+	struct dice_t *d = dice;
 
 	if(!isdigit(s[0])){
 		debug_puts("fail");
@@ -222,7 +213,7 @@ int dice_parse(struct dice_t **const dice, const char *const s)
 	return 1;
 e_dice:
 
-	*dice = (struct dice_t *)NULL;
+	*dice = (struct dice_t){0};
 	return 0;
 }
 
