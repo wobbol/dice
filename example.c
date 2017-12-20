@@ -27,10 +27,14 @@ int main(int argc, char* argv[])
 	int error = 0;
 	struct dice_t d;
 
+	uintmax_t roll;
 	//TODO: reimplement dicethrow
 	while(*(++argv)) {
 		if(dice_parse(&d, *argv)){
-			printf("%s| %s\n", dice_str(&d), dice_rtd(&d));
+			printf("%-7s| ", dice_str(&d));
+			while((roll = dice_rtd(&d)) != 0)
+				printf("%" PRIuMAX " ", roll);
+			printf("\n");
 		}else{
 			dice_perror(*argv);
 			error = 1;

@@ -122,6 +122,7 @@ parse_one:
 		debug_puts("fail");
 		return 0;
 	}
+	init_mask(d);
 
 	return 1;
 }
@@ -149,31 +150,20 @@ void init_mask(struct dice_t *dice)
 	}
 }
 
-char *dice_rtd(struct dice_t *dice)
+uintmax_t dice_rtd(struct dice_t *const d)
 {
-	static char str[MAX_ARG_SZ];
-	int read;
-	init_mask(dice);//TODO: Move this to the parse stuff.
+	if(!d->num)
+		return 0;
 
-	int off = 0;
-	int bytes_left = MAX_ARG_SZ;
-		uintmax_t r;
-	while (dice->num--){
-retry:
-		r = random_number();
-		r &= dice->mask;
-		if(r > dice->faces)
-			goto retry;
-		if(r == 0)
-			r = dice->faces;
-		read = snprintf(&str[off], bytes_left, "%" PRIuMAX " ", r);
+	--d->num;
 
-		bytes_left -= read;
-		off += read;
+	uintmax_t roll;
+	do {
+		roll = random_number();
+		roll &= d->mask;
+	} while(roll > d->faces);
 
-		if(bytes_left <= 0){
-			break;
-		}
-	}
-	return str;
+	if(roll == 0)
+		return d->faces;
+	return roll;
 }

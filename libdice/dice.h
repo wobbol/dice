@@ -31,7 +31,7 @@ char *dice_strerror(enum dice_error_e e);
 void dice_perror(const char *const arg);
 int dice_parse(struct dice_t *const dice, const char *const s);
 char *dice_str(struct dice_t *dice);
-char *dice_rtd(struct dice_t *dice);
+uintmax_t dice_rtd(struct dice_t *d);
 void init_dice(void);
 void finish_dice(void);
 
