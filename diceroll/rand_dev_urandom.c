@@ -22,8 +22,7 @@ void remove_random(void)
 uintmax_t random_number(void)
 {
 	uintmax_t out;
-	int tmp;
-	tmp = fread(&out, sizeof(uintmax_t), 1, rand_f);
+	fread(&out, sizeof(uintmax_t), 1, rand_f);
 	if(ferror(rand_f))
 		perror("Cannot get random number");
 	return out;
