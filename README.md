@@ -1,5 +1,6 @@
 libdiceroll - need to roll 100d61? no problem.
 
+[!video](https://github.com/wobbol/dice/releases/download/0.1.0/example.mp4)
 
 Take a look at example.c to see it in action.
 
