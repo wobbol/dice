@@ -1,18 +1,19 @@
 libdiceroll - need to roll 100d61? no problem.
 
+
 Take a look at example.c to see it in action.
 
-Here's a short rundown:
+API overview:
 
-diceroll_init() - Starts number generator and other setup.
-diceroll_finish() - Cleanup any *FILEs and malloc.
+diceroll_init() - Start. Idempotent.
+diceroll_finish() - Cleanup. Idempotent.
 
 diceroll_parse() - Digest dice-roll string.
   return 0, dice_error is set.
   return 1, ready to roll.
 
 diceroll_rtd() - Roll the dice.
-  returns a diceroll.
+  return > 0, a diceroll.
   return 0, dice is finished.
 
 diceroll_perror() - Prints given string, then the dice error.
